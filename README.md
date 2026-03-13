@@ -157,11 +157,8 @@ from wtfd.evaluation import evaluate_model
 
 ```python
 data = load_scada_data()
-
 features, labels = build_features(data)
-
 model = train_model(features, labels)
-
 evaluate_model(model, features, labels)
 ```
 
@@ -184,4 +181,4 @@ Pull requests welcome! For major changes, please [open an issue](https://github.
 
 ## 🧠 Project Maintainers
 
-- Curtis Neidererer: [@curtisn](https://github.com/curtisn) · [neiderer.c@northeastern.edu](mailto:neiderer.c@northeastern.edu)
+Curtis Neidererer: [@curtisn](https://github.com/curtisn) · [neiderer.c@northeastern.edu](mailto:neiderer.c@northeastern.edu)
