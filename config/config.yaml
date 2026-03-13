@@ -1,0 +1,20 @@
+project:
+  name: wtfd
+  random_seed: 1984
+
+paths:
+  raw_data: data/raw
+  processed_data: data/processed
+  models: models
+  logs: logs
+
+data:
+
+
+model:
+  test_size: 0.2
+  random_state: 1984
+
+logging:
+  level: INFO
+  file_name: wtfd.log
