@@ -1,6 +1,6 @@
 # Wind Turbine Fault Detection
 
-<p align="center"> <img src="assets/wtfd-banner.png" width="900"> </p> <p align="center"></p>
+<p align="center"> <img src="assets/wtfd-banner.png" width="900" height="300"> </p> <p align="center"></p>
 
 ## Project Overview
 
