@@ -15,7 +15,26 @@ After downloading, extract to:
 data/raw/zenodo_windfarm_data/
 
 Expected structure:
+```bash
 data/raw/zenodo_windfarm_data/
 ├── Wind Farm A
+    ├── datasets
+        ├── *.csv
+        └── ...
+    ├── event_info.csv
+    └── feature_description.csv
 ├── Wind Farm B
-└── Wind Farm C
+    ├── datasets
+        ├── *.csv
+        └── ...
+    ├──event_info.csv
+    └── feature_description.csv
+├── Wind Farm C
+    ├── datasets
+        ├── *.csv
+        └── ...
+    ├── event_info.csv
+    └── feature_description.csv
+├── README.md
+└── README.txt
+```
