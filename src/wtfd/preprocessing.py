@@ -534,3 +534,91 @@ def summarize_preprocessing_result(df: pd.DataFrame) -> dict[str, object]:
         summary["n_missing_timestamps"] = int(df["timestamp"].isna().sum())
 
     return summary
+
+
+    # ---------------------------------------------------------------------------
+# Memory optimization
+# ---------------------------------------------------------------------------
+
+def optimize_dtypes(
+    df: pd.DataFrame,
+    convert_int: bool = True,
+    convert_float: bool = True,
+    convert_object: bool = False,
+    category_threshold: float = 0.5,
+) -> pd.DataFrame:
+    """
+    Optimize dataframe dtypes to reduce memory usage.
+
+    This function performs safe dtype downcasting without altering the
+    semantic meaning of the data. It is intended for early-stage processing
+    (e.g., during data combination) where memory efficiency is important.
+
+    Operations include:
+    - Downcasting integer types (e.g., int64 → int32/int16)
+    - Downcasting float types (e.g., float64 → float32)
+    - Optional conversion of low-cardinality object columns to category
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Input dataframe.
+    convert_int : bool, optional
+        Whether to downcast integer columns. Default is True.
+    convert_float : bool, optional
+        Whether to downcast float columns. Default is True.
+    convert_object : bool, optional
+        Whether to convert object columns to categorical where appropriate.
+        Default is False (safer for early pipeline stages).
+    category_threshold : float, optional
+        Maximum ratio of unique values to total rows for converting an object
+        column to category. Only used if convert_object=True.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Copy of dataframe with optimized dtypes.
+
+    Notes
+    -----
+    - This function does NOT modify timestamp columns.
+    - This function avoids aggressive transformations that could affect modeling.
+    - Object-to-category conversion is optional and conservative.
+    """
+    df_out = df.copy()
+
+    # -----------------------------------------------------------------------
+    # Integer downcasting
+    # -----------------------------------------------------------------------
+    if convert_int:
+        int_cols = df_out.select_dtypes(include=["int", "int64", "int32"]).columns
+        for col in int_cols:
+            df_out[col] = pd.to_numeric(df_out[col], downcast="integer")
+
+    # -----------------------------------------------------------------------
+    # Float downcasting
+    # -----------------------------------------------------------------------
+    if convert_float:
+        float_cols = df_out.select_dtypes(include=["float"]).columns
+        for col in float_cols:
+            df_out[col] = pd.to_numeric(df_out[col], downcast="float")
+
+    # -----------------------------------------------------------------------
+    # Object → category (optional)
+    # -----------------------------------------------------------------------
+    if convert_object:
+        obj_cols = df_out.select_dtypes(include=["object"]).columns
+
+        for col in obj_cols:
+            n_unique = df_out[col].nunique(dropna=True)
+            n_total = len(df_out)
+
+            if n_total == 0:
+                continue
+
+            uniqueness_ratio = n_unique / n_total
+
+            if uniqueness_ratio <= category_threshold:
+                df_out[col] = df_out[col].astype("category")
+
+    return df_out

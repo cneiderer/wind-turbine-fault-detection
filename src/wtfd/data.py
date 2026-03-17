@@ -44,7 +44,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import gc
-from typing import Iterable
+from typing import Iterable, List
 import pandas as pd
 
 from wtfd.preprocessing import normalize_column_name, optimize_dtypes
@@ -537,3 +537,142 @@ def convert_scada_csvs_to_parquet_parts(
         metadata_df.to_csv(metadata_csv_path, index=False)
 
     return metadata_df
+
+
+def find_wind_farm_directories(
+    raw_data_dir: str | Path,
+    require_datasets_subdir: bool = False,
+) -> List[Path]:
+    """
+    Discover wind farm directories within the raw data directory.
+
+    This function scans the provided raw data directory and returns all
+    immediate subdirectories, each assumed to represent a wind farm
+    (e.g., "Wind Farm A", "Wind Farm B", etc.).
+
+    Parameters
+    ----------
+    raw_data_dir : str | Path
+        Path to the root raw data directory (e.g., data/raw/zenodo_windfarm_data/).
+    require_datasets_subdir : bool, optional
+        If True, only include directories that contain a "datasets" subdirectory.
+        This can be used as a light validation check. Default is False.
+
+    Returns
+    -------
+    list[pathlib.Path]
+        Sorted list of wind farm directory paths.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the provided raw_data_dir does not exist.
+    ValueError
+        If no valid wind farm directories are found.
+
+    Examples
+    --------
+    >>> find_wind_farm_directories("data/raw/zenodo_windfarm_data/")
+    [PosixPath('.../Wind Farm A'), PosixPath('.../Wind Farm B'), ...]
+    """
+    raw_data_dir = Path(raw_data_dir)
+
+    if not raw_data_dir.exists():
+        raise FileNotFoundError(f"Raw data directory does not exist: {raw_data_dir}")
+
+    if not raw_data_dir.is_dir():
+        raise ValueError(f"Provided path is not a directory: {raw_data_dir}")
+
+    wind_farm_dirs: list[Path] = []
+
+    for path in raw_data_dir.iterdir():
+        if path.is_dir():
+            if require_datasets_subdir:
+                if (path / "datasets").exists():
+                    wind_farm_dirs.append(path)
+            else:
+                wind_farm_dirs.append(path)
+
+    wind_farm_dirs = sorted(wind_farm_dirs, key=lambda p: p.name)
+
+    if not wind_farm_dirs:
+        raise ValueError(
+            f"No wind farm directories found in: {raw_data_dir}"
+        )
+
+    return wind_farm_dirs
+
+
+def find_turbine_csv_files(
+    wind_farm_dir: str | Path,
+    datasets_subdir: str = "datasets",
+    recursive: bool = False,
+) -> List[Path]:
+    """
+    Discover turbine CSV files within a wind farm directory.
+
+    This function searches for CSV files inside the wind farm's datasets
+    directory (e.g., "Wind Farm A/datasets/") and returns all turbine
+    time-series files.
+
+    Parameters
+    ----------
+    wind_farm_dir : str | Path
+        Path to a wind farm directory.
+    datasets_subdir : str, optional
+        Name of the subdirectory containing turbine datasets.
+        Default is "datasets".
+    recursive : bool, optional
+        Whether to search recursively inside the datasets directory.
+        Default is False (recommended for your dataset structure).
+
+    Returns
+    -------
+    list[pathlib.Path]
+        Sorted list of turbine CSV file paths.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the wind farm directory or datasets subdirectory does not exist.
+    ValueError
+        If no CSV files are found.
+
+    Examples
+    --------
+    >>> find_turbine_csv_files(".../Wind Farm A")
+    [PosixPath('.../datasets/T01.csv'), PosixPath('.../datasets/T02.csv'), ...]
+    """
+    wind_farm_dir = Path(wind_farm_dir)
+
+    if not wind_farm_dir.exists():
+        raise FileNotFoundError(f"Wind farm directory does not exist: {wind_farm_dir}")
+
+    if not wind_farm_dir.is_dir():
+        raise ValueError(f"Provided path is not a directory: {wind_farm_dir}")
+
+    datasets_dir = wind_farm_dir / datasets_subdir
+
+    if not datasets_dir.exists():
+        raise FileNotFoundError(
+            f"Datasets subdirectory not found: {datasets_dir}"
+        )
+
+    if not datasets_dir.is_dir():
+        raise ValueError(
+            f"Datasets path is not a directory: {datasets_dir}"
+        )
+
+    if recursive:
+        csv_files = list(datasets_dir.rglob("*.csv"))
+    else:
+        csv_files = list(datasets_dir.glob("*.csv"))
+
+    csv_files = sorted(csv_files, key=lambda p: p.name)
+
+    if not csv_files:
+        raise ValueError(
+            f"No CSV files found in datasets directory: {datasets_dir}"
+        )
+
+    return csv_files    
