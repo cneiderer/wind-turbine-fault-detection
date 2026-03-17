@@ -3,13 +3,26 @@ project:
   random_seed: 1984
 
 paths:
+  # Raw data
   raw_data: data/raw
+  raw_zenodo: data/raw/zenodo_windfarm_data
+
+  # Interim data
+  interim_data: data/interim
+  scada_parquet: data/interim/scada_by_turbine
+  eda_outputs: data/interim/eda
+
+  # Final processed data
   processed_data: data/processed
+
+  # Models and logs
   models: models
   logs: logs
 
 data:
-
+  file_format:
+    scada: csv
+    delimiter: ";"
 
 model:
   test_size: 0.2
