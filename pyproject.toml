@@ -7,7 +7,7 @@ name = "wtfd"
 version = "0.1.0"
 description = "Wind Turbine Fault Detection using SCADA telemetry data"
 authors = [
-    {name = "Curtis Neiderer"}
+    { name = "Curtis Neiderer" }
 ]
 readme = "README.md"
 requires-python = ">=3.9"
@@ -18,8 +18,12 @@ dependencies = [
     "scikit-learn",
     "matplotlib",
     "seaborn",
-    "pyyaml"
+    "pyyaml",
+    "pyarrow",
 ]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
