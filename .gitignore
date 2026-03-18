@@ -3,21 +3,34 @@ data/raw/*
 data/interim/*
 data/processed/*
 
+# Ignore log files
+logs/
+*.log
+
 # Keep data directory structure and documentation
 !data/raw/.gitkeep
 !data/interim/.gitkeep
 !data/processed/.gitkeep
 !data/README.md
 
+# Ignore actual data files
+*.parquet
+*.feather
+*.h5
+*.pkl
+*.joblib
+
 # Logs
 logs/*.log
 
-# Trained models and local experiment artifacts
-models/trained/*
-models/trained/*.joblib
-models/trained/*.pkl
-reports/metrics/*.json
-!reports/metrics/experiment_history.csv
+# Models
+models/*
+!models/.gitkeep
+
+# Metrics / artifacts
+data/artifacts/*
+!data/artifacts/**/.gitkeep
+!data/artifacts/**/experiment_history.csv
 
 # Jupyter checkpoints
 .ipynb_checkpoints/

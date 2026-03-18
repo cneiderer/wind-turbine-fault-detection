@@ -3,17 +3,28 @@ project:
   random_seed: 1984
 
 paths:
+  # Project assets
+  assets: assets
+  docs: docs
+  notebooks: notebooks
+  tests: tests
+  milestones: milestones
+
   # Raw data
   raw_data: data/raw
   raw_zenodo: data/raw/zenodo_windfarm_data
 
   # Interim data
   interim_data: data/interim
-  scada_parquet: data/interim/scada_by_turbine
-  eda_outputs: data/interim/eda
+  turbine_parquet: data/interim/turbine_parquet
 
-  # Final processed data
+  # Processed data
   processed_data: data/processed
+
+  # Artifacts
+  artifacts: data/artifacts
+  eda_artifacts: data/artifacts/eda
+  data_combination_artifacts: data/artifacts/data_combination
 
   # Models and logs
   models: models
@@ -23,11 +34,41 @@ data:
   file_format:
     scada: csv
     delimiter: ";"
+    metadata: csv
+
+  raw_structure:
+    farm_dirs_expected:
+      - "Wind Farm A"
+      - "Wind Farm B"
+      - "Wind Farm C"
+    datasets_subdir: "datasets"
+    feature_description_file: "feature_description.csv"
+    event_info_file: "event_info.csv"
+
+  preprocessing:
+    normalize_column_names: true
+    deduplicate_column_names: true
+    standardize_timestamp: true
+    sort_by_timestamp: true
+    timestamp_candidates:
+      - timestamp
+      - datetime
+      - date_time
+      - time
+      - date
+
+  io:
+    memory_map: true
+    low_memory: false
+    parquet_engine: pyarrow
 
 model:
+  separate_model_per_farm: true
   test_size: 0.2
+  validation_size: 0.2
   random_state: 1984
 
 logging:
   level: INFO
   file_name: wtfd.log
+  format: "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
