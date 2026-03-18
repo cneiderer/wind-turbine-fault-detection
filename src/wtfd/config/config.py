@@ -31,7 +31,7 @@ import yaml
 # Project root and config file location
 # ---------------------------------------------------------------------------
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
 CONFIG_PATH = PROJECT_ROOT / "config" / "config.yaml"
 
 
